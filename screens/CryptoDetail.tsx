@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   SafeAreaView,
@@ -7,15 +7,42 @@ import {
   TouchableOpacity,
   ScrollView,
   Animated,
+  ImageSourcePropType,
 } from 'react-native';
 
 import {useNavigation} from '@react-navigation/native';
 
 import {dummyData, COLORS, SIZES, FONTS, icons} from '../constants';
-import {HeaderBar} from '../components';
+import {HeaderBar, CurrencyLabel} from '../components';
 
-const CryptoDetail = () => {
+import {
+  VictoryScatter,
+  VictoryLine,
+  VictoryChart,
+  VictoryAxis,
+} from 'victory-native';
+
+import {VictoryCustomTheme} from '../styles';
+
+interface PropsCurrency {
+  image: ImageSourcePropType;
+  currency: string;
+  code: string;
+  amount: number;
+  changes: string;
+  type: string;
+}
+
+const CryptoDetail = ({route}: {route: any}) => {
   const navigation = useNavigation();
+
+  const [selectedCurrency, setSelectedCurrency] =
+    useState<PropsCurrency | null>(null);
+
+  useEffect(() => {
+    const {currency} = route.params;
+    setSelectedCurrency(currency);
+  }, [route.params]);
 
   function renderChart() {
     return (
@@ -27,8 +54,90 @@ const CryptoDetail = () => {
           borderRadius: SIZES.radius,
           backgroundColor: COLORS.white,
           ...styles.shadow,
-        }}
-      />
+        }}>
+        {/* Header */}
+        <View
+          style={{
+            flexDirection: 'row',
+            marginTop: SIZES.padding,
+            paddingHorizontal: SIZES.padding,
+          }}>
+          <View style={{flex: 1}}>
+            <CurrencyLabel
+              icon={selectedCurrency?.image}
+              currency={selectedCurrency?.currency}
+              code={selectedCurrency?.code}
+            />
+          </View>
+          <View>
+            <Text style={{...FONTS.h3}}>${selectedCurrency?.amount}</Text>
+            <Text
+              style={{
+                color:
+                  selectedCurrency?.type == 'I' ? COLORS.green : COLORS.red,
+                ...FONTS.body3,
+              }}>
+              {selectedCurrency?.changes}
+            </Text>
+          </View>
+          <View />
+        </View>
+        {/* Chart */}
+        <View
+          style={{
+            marginTop: -25,
+          }}>
+          <VictoryChart
+            theme={VictoryCustomTheme}
+            height={220}
+            width={SIZES.width - 40}>
+            <VictoryLine
+              style={{
+                data: {
+                  stroke: COLORS.secondary,
+                },
+                parent: {
+                  border: '1px solid #ccc',
+                },
+              }}
+              data={selectedCurrency?.chartData}
+              categories={{
+                x: ['15 MIN', '30 MIN', '45 MIN', '60 MIN'],
+                y: ['15', '30', '45'],
+              }}
+            />
+            <VictoryScatter
+              data={selectedCurrency?.chartData}
+              size={7}
+              style={{
+                data: {
+                  fill: COLORS.secondary,
+                },
+              }}
+            />
+            <VictoryAxis
+              style={{
+                grid: {
+                  stroke: 'transparent',
+                },
+              }}
+            />
+
+            <VictoryAxis
+              style={{
+                axis: {
+                  stroke: 'transparent',
+                },
+                grid: {
+                  stroke: 'grey',
+                },
+              }}
+            />
+          </VictoryChart>
+        </View>
+        {/* Options */}
+        {/* Dots */}
+      </View>
     );
   }
 
@@ -41,7 +150,7 @@ const CryptoDetail = () => {
       <HeaderBar right />
       <ScrollView>
         <View style={{flex: 1, paddingBottom: SIZES.padding}}>
-          {renderChart}
+          {renderChart()}
         </View>
       </ScrollView>
     </SafeAreaView>
