@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   View,
@@ -9,13 +9,14 @@ import {
   ImageSourcePropType,
   Image,
   ImageBackground,
+  LogBox
 } from 'react-native';
 
 import {dummyData, COLORS, SIZES, FONTS, icons, images} from '../constants';
 
 // import {useNavigation} from '@react-navigation/native';
 
-import {PriceAlert} from '../components';
+import {PriceAlert, TransactionHistory} from '../components';
 
 interface PropsItem {
   id: number;
@@ -31,6 +32,13 @@ const Home = () => {
   //   const navigation = useNavigation();
 
   const [trending, setTrending] = useState(dummyData.trendingCurrencies);
+  const [transactionHistory, setTransactionHistory] = useState(
+    dummyData.transactionHistory,
+  );
+
+  useEffect(() => {
+    LogBox.ignoreLogs(['VirtualizedLists should never be nested'])
+  }, [])
 
   function renderHeader() {
     const renderItem = ({item, index}: {item: PropsItem; index: number}) => (
@@ -205,12 +213,22 @@ const Home = () => {
     );
   }
 
+  function renderTransactionHistory() {
+    return (
+      <TransactionHistory
+        customContainerStyle={{...styles.shadow}}
+        history={transactionHistory}
+      />
+    );
+  }
+
   return (
     <ScrollView>
       <View style={{flex: 1, paddingBottom: 130}}>
         {renderHeader()}
         {renderAlert()}
         {renderNotice()}
+        {renderTransactionHistory()}
       </View>
     </ScrollView>
   );
