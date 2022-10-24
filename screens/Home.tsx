@@ -9,12 +9,12 @@ import {
   ImageSourcePropType,
   Image,
   ImageBackground,
-  LogBox
+  LogBox,
 } from 'react-native';
 
 import {dummyData, COLORS, SIZES, FONTS, icons, images} from '../constants';
 
-// import {useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 import {PriceAlert, TransactionHistory} from '../components';
 
@@ -29,7 +29,7 @@ interface PropsItem {
 }
 
 const Home = () => {
-  //   const navigation = useNavigation();
+  const navigation = useNavigation();
 
   const [trending, setTrending] = useState(dummyData.trendingCurrencies);
   const [transactionHistory, setTransactionHistory] = useState(
@@ -37,8 +37,8 @@ const Home = () => {
   );
 
   useEffect(() => {
-    LogBox.ignoreLogs(['VirtualizedLists should never be nested'])
-  }, [])
+    LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
+  }, []);
 
   function renderHeader() {
     const renderItem = ({item, index}: {item: PropsItem; index: number}) => (
@@ -51,7 +51,12 @@ const Home = () => {
           marginRight: SIZES.radius,
           borderRadius: 10,
           backgroundColor: COLORS.white,
-        }}>
+        }}
+        onPress={() =>
+          navigation.navigate('CryptoDetail', {
+            currency: item,
+          })
+        }>
         {/* Currency */}
         <View style={{flexDirection: 'row'}}>
           <View>
